@@ -1,4 +1,4 @@
-Name:                z3
+Name:                z3-haskell
 Version:             408.2
 Synopsis:            Bindings for the Z3 Theorem Prover
 Description:
