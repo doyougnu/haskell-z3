@@ -1,8 +1,10 @@
 {-# LANGUAGE DeriveDataTypeable         #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE PatternGuards              #-}
 {-# LANGUAGE NamedFieldPuns             #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE StandaloneDeriving         #-}
 
 -- |
 -- Module    : Z3.Base
@@ -59,7 +61,7 @@ module Z3.Base (
     Config
   , Context
   , Symbol
-  , AST
+  , AST(..)
   , Sort
   , TupleType(..)
   , FuncDecl
@@ -531,6 +533,7 @@ import Z3.Base.C
 
 import Control.Applicative ( (<$>), (<*>), (<*), pure )
 import Control.Exception ( Exception, bracket, throw )
+import Control.DeepSeq   (NFData(..),rwhnf)
 import Control.Monad ( join, when, forM )
 import Data.Fixed ( Fixed, HasResolution )
 import Data.Foldable ( Foldable (..) )
@@ -550,6 +553,7 @@ import Foreign.C
   , peekCString
   , withCString )
 import Foreign.Concurrent
+import GHC.Generics (Generic)
 
 ---------------------------------------------------------------------
 -- * Types
@@ -576,7 +580,10 @@ newtype Symbol = Symbol { unSymbol :: Ptr Z3_symbol }
 --
 -- This is the data-structure used in Z3 to represent terms, formulas and types.
 newtype AST = AST { unAST :: ForeignPtr Z3_ast }
-    deriving (Eq, Ord, Show, Typeable)
+    deriving (Eq, Ord, Show, Typeable,Generic,NFData)
+
+instance NFData a => NFData (ForeignPtr a) where rnf = rwhnf
+instance NFData Z3_ast where rnf = rwhnf
 
 -- | A kind of AST representing /types/.
 newtype Sort = Sort { unSort :: ForeignPtr Z3_sort }
@@ -2122,7 +2129,7 @@ mkExistsConst = flip mkExistsWConst 0
 getSymbolString :: Context -> Symbol -> IO String
 getSymbolString = liftFun1 z3_get_symbol_string
 
--- | Return the sort name as a symbol. 
+-- | Return the sort name as a symbol.
 getSortName :: Context -> Sort -> IO Symbol
 getSortName = liftFun1 z3_get_sort_name
 
@@ -3118,7 +3125,7 @@ optimizeFromString = liftFun2 z3_optimize_from_string
 
 optimizeFromFile :: Context -> Optimize -> String -> IO ()
 optimizeFromFile = liftFun2 z3_optimize_from_file
- 
+
 optimizeGetHelp :: Context -> Optimize -> IO String
 optimizeGetHelp = liftFun1 z3_optimize_get_help
 
