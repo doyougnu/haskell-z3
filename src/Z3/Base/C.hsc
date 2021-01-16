@@ -1,4 +1,5 @@
 {-# LANGUAGE EmptyDataDecls #-}
+{-# LANGUAGE DeriveGeneric  #-}
 
 -- |
 -- Module    : Z3.Base.C
@@ -27,6 +28,7 @@ module Z3.Base.C where
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
+import GHC.Generics (Generic)
 
 #include <z3.h>
 
@@ -43,6 +45,7 @@ data Z3_symbol
 data Z3_symbol_kind
 
 data Z3_ast
+  deriving Generic
 
 data Z3_sort
 

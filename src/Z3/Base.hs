@@ -546,6 +546,7 @@ import Data.Traversable ( Traversable )
 import qualified Data.Traversable as T
 import Data.Typeable ( Typeable )
 import Data.Word
+import Data.Hashable (Hashable(..))
 import Foreign hiding ( toBool, newForeignPtr )
 import Foreign.Storable ( peek )
 import Foreign.C
@@ -553,6 +554,7 @@ import Foreign.C
   , peekCString
   , withCString )
 import Foreign.Concurrent
+import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
 import GHC.Generics (Generic)
 
 ---------------------------------------------------------------------
@@ -580,10 +582,17 @@ newtype Symbol = Symbol { unSymbol :: Ptr Z3_symbol }
 --
 -- This is the data-structure used in Z3 to represent terms, formulas and types.
 newtype AST = AST { unAST :: ForeignPtr Z3_ast }
-    deriving (Eq, Ord, Show, Typeable,Generic,NFData)
+    deriving (Eq,Ord,Show,Typeable,Generic,NFData)
 
 instance NFData a => NFData (ForeignPtr a) where rnf = rwhnf
 instance NFData Z3_ast where rnf = rwhnf
+instance Hashable AST
+instance Hashable Z3_ast
+
+-- foreign import ccall unsafe "hashable_fnv_hash" c_hashCString
+
+instance Hashable (ForeignPtr a) where
+  hashWithSalt salt p = hashWithSalt salt (unsafeForeignPtrToPtr p)
 
 -- | A kind of AST representing /types/.
 newtype Sort = Sort { unSort :: ForeignPtr Z3_sort }
@@ -666,7 +675,9 @@ data Result
     = Sat
     | Unsat
     | Undef
-    deriving (Eq, Ord, Read, Show)
+    deriving (Eq, Ord, Read, Show, Generic)
+
+instance NFData Result
 
 -- | Different kinds of Z3 types.
 data SortKind

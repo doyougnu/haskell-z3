@@ -1,5 +1,5 @@
 { mkDerivation, base, containers, hspec, QuickCheck, stdenv
-, transformers, z3, deepseq
+, transformers, z3, deepseq, hashable
 }:
 mkDerivation {
   pname = "z3-haskell";
@@ -8,7 +8,7 @@ mkDerivation {
   isLibrary = true;
   doCheck = false;
   isExecutable = true;
-  libraryHaskellDepends = [ base containers transformers deepseq ];
+  libraryHaskellDepends = [ base containers transformers deepseq hashable ];
   librarySystemDepends = [ z3 ];
   testSystemDepends = [ z3 ];
   testHaskellDepends = [ base hspec QuickCheck ];

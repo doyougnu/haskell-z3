@@ -60,7 +60,9 @@ Library
     Build-depends:       base >= 4.5 && <5,
                          containers,
                          transformers >= 0.2,
-                         deepseq
+                         deepseq,
+                         hashable
+
     if impl(ghc < 8)
       Build-depends:     semigroups >= 0.5
 
